@@ -1,0 +1,40 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use App\Enums\AppointmentStatus;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class AppointmentStatusHistory extends Model
+{
+    use HasFactory;
+
+    public const UPDATED_AT = null;
+
+    protected $fillable = [
+        'appointment_id',
+        'from_status',
+        'to_status',
+        'changed_by_id',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'from_status' => AppointmentStatus::class,
+            'to_status' => AppointmentStatus::class
+        ];
+    }
+
+    public function appointment(): BelongsTo
+    {
+        return $this->belongsTo(Appointment::class);
+    }
+
+    public function changedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'changed_by_id');
+    }
+}
