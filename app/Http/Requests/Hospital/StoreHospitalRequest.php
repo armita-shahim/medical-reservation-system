@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Hospital;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class HospitalRequest extends FormRequest
+class StoreHospitalRequest extends FormRequest
 {
     public function authorize(): bool
     {
