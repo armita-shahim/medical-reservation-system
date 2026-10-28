@@ -12,13 +12,6 @@ class Specialty extends Model
 
     protected $fillable = ['name'];
 
-    protected function casts(): array
-    {
-        return [
-            'is_active' => 'boolean'
-        ];
-    }
-
     public function doctors(): HasMany
     {
         return $this->hasMany(Doctor::class);

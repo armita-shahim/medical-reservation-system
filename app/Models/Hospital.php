@@ -13,13 +13,6 @@ class Hospital extends Model
 
     protected $fillable = ['name', 'city', 'address', 'phone'];
 
-    protected function casts(): array
-    {
-        return [
-            'is_active' => 'boolean'
-        ];
-    }
-
     public function availabilities(): HasMany
     {
         return $this->hasMany(Availability::class);

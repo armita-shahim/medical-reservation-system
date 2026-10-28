@@ -15,7 +15,7 @@ return new class extends Migration
             $table->index('specialty_id');
             $table->string('medical_council_code', 50)->unique();
             $table->text('bio')->nullable();
-            $table->boolean('is_active')->default(true);
+            $table->softDeletesTz();
             $table->timestampsTz();
         });
     }

@@ -18,7 +18,6 @@ return new class extends Migration
             $table->date('valid_from');
             $table->date('valid_until')->nullable();
             $table->smallInteger('slot_duration_minutes');
-            $table->boolean('is_active')->default(true);
             $table->timestampsTz();
             $table->index(['doctor_id', 'hospital_id']);
         });

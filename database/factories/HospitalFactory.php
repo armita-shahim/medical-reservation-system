@@ -13,7 +13,6 @@ class HospitalFactory extends Factory
             'city' => fake()->city(),
             'address' => fake()->address(),
             'phone' => fake()->phoneNumber(),
-            'is_active' => true,
         ];
     }
 }

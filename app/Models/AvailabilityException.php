@@ -13,7 +13,6 @@ class AvailabilityException extends Model
 
     protected $fillable = [
         'doctor_id',
-        'hospital_id',
         'start_at',
         'end_at',
         'reason'
@@ -30,10 +29,5 @@ class AvailabilityException extends Model
     public function doctor(): BelongsTo
     {
         return $this->belongsTo(Doctor::class);
-    }
-
-    public function hospital(): BelongsTo
-    {
-        return $this->belongsTo(Hospital::class);
     }
 }

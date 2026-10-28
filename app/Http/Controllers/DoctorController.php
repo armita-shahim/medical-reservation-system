@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Doctor;
 use App\Http\Resources\DoctorResource;
-use App\Http\Requests\DoctorRequest;
+use App\Http\Requests\Doctor\UpdateDoctorRequest;
+use App\Http\Requests\Doctor\StoreDoctorRequest;
 use App\Models\User;
 use App\Enums\UserRole;
 use Illuminate\Support\Facades\DB;
@@ -14,26 +15,21 @@ class DoctorController extends Controller
 {
     public function index()
     {
-        $doctors = Doctor::where('is_active', true)
-            ->whereRelation('user', 'is_active', true)
-            ->with(['user', 'specialty'])
+        $doctors = Doctor::with(['user', 'specialty'])
             ->orderBy('id')
             ->paginate(15);
 
         return DoctorResource::collection($doctors);
     }
 
-    public function show(int $doctor)
+    public function show(Doctor $doctor)
     {
-        $doctor = Doctor::where('is_active', true)
-            ->whereRelation('user', 'is_active', true)
-            ->with(['user', 'specialty'])
-            ->findOrFail($doctor);
+        $doctor->load(['user', 'specialty']);
 
         return new DoctorResource($doctor);
     }
 
-    public function store(DoctorRequest $request)
+    public function store(StoreDoctorRequest $request)
     {
         $data = $request->validated();
 
@@ -69,7 +65,7 @@ class DoctorController extends Controller
             ->setStatusCode(201);
     }
 
-    public function update(DoctorRequest $request, Doctor $doctor)
+    public function update(UpdateDoctorRequest $request, Doctor $doctor)
     {
         Gate::authorize('update', $doctor);
 
@@ -78,5 +74,23 @@ class DoctorController extends Controller
         $doctor->load(['user', 'specialty']);
 
         return new DoctorResource($doctor);
+    }
+
+    public function destroy(Doctor $doctor)
+    {
+        DB::beginTransaction();
+
+        try {
+            $user = $doctor->user;
+            $user->tokens()->delete();
+            $doctor->delete();
+            $user->delete();
+
+            DB::commit();
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            throw $e;
+        }
+        return response()->noContent();
     }
 }

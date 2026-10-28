@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('role')->default('patient');
             $table->timestampTz('email_verified_at')->nullable();
             $table->rememberToken();
-            $table->boolean('is_active')->default(true);
+            $table->softDeletesTz();
             $table->timestampsTz();
         });
 

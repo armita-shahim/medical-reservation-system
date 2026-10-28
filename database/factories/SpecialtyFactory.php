@@ -10,7 +10,6 @@ class SpecialtyFactory extends Factory
     {
         return [
             'name' => fake()->unique()->jobTitle(),
-            'is_active' => true
         ];
     }
 }

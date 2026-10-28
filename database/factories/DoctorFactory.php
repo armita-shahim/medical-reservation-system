@@ -16,7 +16,6 @@ class DoctorFactory extends Factory
             'specialty_id' => Specialty::factory(),
             'medical_council_code' => fake()->unique()->numerify('######'),
             'bio' => fake()->paragraph(),
-            'is_active' => true,
         ];
     }
 }

@@ -20,7 +20,6 @@ class Availability extends Model
         'valid_from',
         'valid_until',
         'slot_duration_minutes',
-        'is_active'
     ];
 
     protected function casts(): array
@@ -29,7 +28,6 @@ class Availability extends Model
             'valid_from' => 'date',
             'valid_until' => 'date',
             'slot_duration_minutes' => 'integer',
-            'is_active' => 'boolean'
         ];
     }
 

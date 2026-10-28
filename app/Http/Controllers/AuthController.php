@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\RegisterRequest;
-use App\Http\Requests\LoginRequest;
+use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Enums\UserRole;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 
 class AuthController extends Controller
@@ -15,13 +16,12 @@ class AuthController extends Controller
     {
         $user = new User($request->validated());
         $user->role = UserRole::Patient;
-        $user->is_active = true;
         $user->save();
 
         $token = $user->createToken('api-token')->plainTextToken;
 
         return response()->json([
-            'user' => $user,
+            'user' => new UserResource($user),
             'token' => $token,
         ], 201);
     }
@@ -34,14 +34,10 @@ class AuthController extends Controller
             return response()->json(['message' => 'Incorrect email or password'], 401);
         }
 
-        if (! $user->is_active) {
-            return response()->json(['message' => 'This account is disabled.'], 403);
-        }
-
         $token = $user->createToken('api-token')->plainTextToken;
 
         return response()->json([
-            'user' => $user,
+            'user' => new UserResource($user),
             'token' => $token,
         ]);
     }
@@ -51,10 +47,5 @@ class AuthController extends Controller
         $request->user()->currentAccessToken()->delete();
 
         return response()->noContent();
-    }
-
-    public function myProfile(Request $request)
-    {
-        return $request->user();
     }
 }

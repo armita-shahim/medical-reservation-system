@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\HospitalRequest;
+use App\Http\Requests\Hospital\StoreHospitalRequest;
+use App\Http\Requests\Hospital\UpdateHospitalRequest;
 use App\Models\Hospital;
 use App\Http\Resources\HospitalResource;
 
@@ -10,14 +11,18 @@ class HospitalController extends Controller
 {
     public function index()
     {
-        $hospitals = Hospital::where('is_active', true)
-            ->orderBy('id')
+        $hospitals = Hospital::orderBy('id')
             ->paginate(15);
 
         return HospitalResource::collection($hospitals);
     }
 
-    public function store(HospitalRequest $request)
+    public function show(Hospital $hospital)
+    {
+        return new HospitalResource($hospital);
+    }
+
+    public function store(StoreHospitalRequest $request)
     {
         $hospital = Hospital::create($request->validated());
 
@@ -26,7 +31,7 @@ class HospitalController extends Controller
             ->setStatusCode(201);
     }
 
-    public function update(HospitalRequest $request, Hospital $hospital)
+    public function update(UpdateHospitalRequest $request, Hospital $hospital)
     {
         $hospital->update($request->validated());
 

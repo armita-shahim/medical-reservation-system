@@ -14,7 +14,6 @@ return new class extends Migration
             $table->string('city', 100);
             $table->text('address');
             $table->string('phone', 50)->nullable();
-            $table->boolean('is_active')->default(true);
             $table->timestampsTz();
         });
     }
