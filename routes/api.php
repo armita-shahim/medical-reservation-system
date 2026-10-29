@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HospitalController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\AvailabilityController;
+use App\Http\Controllers\AvailabilityExceptionController;
 
 
 Route::post('/auth/register', [AuthController::class, 'register']);
@@ -24,6 +26,21 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/doctors', [DoctorController::class, 'index']);
     Route::get('/doctors/{doctor}', [DoctorController::class, 'show']);
     Route::patch('/doctors/{doctor}', [DoctorController::class, 'update']);
+
+
+    Route::middleware('role:doctor')->group(function () {
+
+        Route::get('/availabilities', [AvailabilityController::class, 'index']);
+        Route::get('/availabilities/{availability}', [AvailabilityController::class, 'show']);
+        Route::post('/availabilities', [AvailabilityController::class, 'store']);
+        Route::put('/availabilities/{availability}', [AvailabilityController::class, 'update']);
+        Route::delete('/availabilities/{availability}', [AvailabilityController::class, 'destroy']);
+
+        Route::get('/availability-exceptions', [AvailabilityExceptionController::class, 'index']);
+        Route::get('/availability-exceptions/{exception}', [AvailabilityExceptionController::class, 'show']);
+        Route::post('/availability-exceptions', [AvailabilityExceptionController::class, 'store']);
+        Route::delete('/availability-exceptions/{exception}', [AvailabilityExceptionController::class, 'destroy']);
+    });
 
 
     Route::middleware('role:admin')->group(function () {
