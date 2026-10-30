@@ -54,6 +54,7 @@ class AvailabilityController extends Controller
         Gate::authorize('update', $availability);
 
         $data = $request->validated();
+        $data['valid_until'] ?? null;
 
         $start = substr($data['start_time'] ?? $availability->start_time, 0, 5);
         $end = substr($data['end_time'] ?? $availability->end_time, 0, 5);
