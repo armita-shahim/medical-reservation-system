@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\AppointmentStatus;
 use App\Models\Doctor;
 use App\Http\Resources\DoctorResource;
 use App\Http\Requests\Doctor\UpdateDoctorRequest;
@@ -78,6 +79,15 @@ class DoctorController extends Controller
 
     public function destroy(Doctor $doctor)
     {
+        $hasAppointment = $doctor->appointments()->where('status', AppointmentStatus::Booked)
+            ->where('start_at', '>', now())->exists();
+
+        if ($hasAppointment) {
+            return response()->json([
+                'message' => 'This doctor has upcoming appointment, can not be deleted',
+            ], 409);
+        }
+
         DB::beginTransaction();
 
         try {
