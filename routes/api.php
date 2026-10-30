@@ -9,6 +9,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\AvailabilityController;
 use App\Http\Controllers\AvailabilityExceptionController;
 use App\Http\Controllers\SlotController;
+use App\Http\Controllers\AppointmentController;
+
 
 
 Route::post('/auth/register', [AuthController::class, 'register']);
@@ -28,9 +30,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/doctors/{doctor}', [DoctorController::class, 'show']);
     Route::patch('/doctors/{doctor}', [DoctorController::class, 'update']);
 
-
     Route::get('/doctors/{doctor}/slots', [SlotController::class, 'index']);
-
+    Route::post('/appointments', [AppointmentController::class, 'store']);
+    Route::get('/appointments', [AppointmentController::class, 'index']);
+    Route::get('/appointments/{appointment}', [AppointmentController::class, 'show']);
+    Route::patch('/appointments/{appointment}/cancel', [AppointmentController::class, 'cancel']);
+    Route::patch('/appointments/{appointment}/status', [AppointmentController::class, 'updateStatus']);
 
     Route::middleware('role:doctor')->group(function () {
 
