@@ -2,20 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\AvailabilityException\StoreAvailabilityExceptionRequest;
-use App\Http\Requests\AvailabilityException\UpdateAvailabilityExceptionRequest;
+use App\Http\Requests\AvailabilityException\AvailabilityExceptionRequest;
 use App\Http\Resources\AvailabilityExceptionResource;
 use App\Models\AvailabilityException;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Auth;
+
 
 
 class AvailabilityExceptionController extends Controller
 {
     public function index()
     {
-        $doctor = auth()->user->doctor;
+        $doctor = Auth::user()->doctor;
 
         $exceptions = $doctor->availabilityExceptions()
             ->orderBy('start_at')
@@ -31,7 +31,7 @@ class AvailabilityExceptionController extends Controller
         return new AvailabilityExceptionResource($exception);
     }
 
-    public function store(StoreAvailabilityExceptionRequest $request)
+    public function store(AvailabilityExceptionRequest $request)
     {
         $data = $request->validated();
 
@@ -43,28 +43,6 @@ class AvailabilityExceptionController extends Controller
         return (new AvailabilityExceptionResource($exception))
             ->response()
             ->setStatusCode(201);
-    }
-
-    public function update(
-        UpdateAvailabilityExceptionRequest $request,
-        AvailabilityException $exception
-    ) {
-        Gate::authorize('update', $exception);
-
-        $data = $request->validated();
-
-        $start = Carbon::parse($data['start_at'] ?? $exception->start_at);
-        $end = Carbon::parse($data['end_at'] ?? $exception->end_at);
-
-        if ($end->lessThanOrEqualTo($start)) {
-            throw ValidationException::withMessages([
-                'end_at' => 'End time must be after start time.',
-            ]);
-        }
-
-        $exception->update($data);
-
-        return new AvailabilityExceptionResource($exception->refresh());
     }
 
     public function destroy(AvailabilityException $exception)

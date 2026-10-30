@@ -4,16 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Models\Availability;
 use App\Http\Resources\AvailabilityResource;
-use App\Http\Requests\Availability\StoreAvailabilityRequest;
-use App\Http\Requests\Availability\UpdateAvailabilityRequest;
+use App\Http\Requests\Availability\AvailabilityRequest;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
 class AvailabilityController extends Controller
 {
     public function index()
     {
-        $doctor = auth()->user->doctor;
+        $doctor = Auth::user()->doctor;
 
         $availabilities = $doctor->availabilities()
             ->orderBy('id')
@@ -29,7 +29,7 @@ class AvailabilityController extends Controller
         return new AvailabilityResource($availability);
     }
 
-    public function store(StoreAvailabilityRequest $request)
+    public function store(AvailabilityRequest $request)
     {
         $data = $request->validated();
 
@@ -49,7 +49,7 @@ class AvailabilityController extends Controller
             ->setStatusCode(201);
     }
 
-    public function update(UpdateAvailabilityRequest $request, Availability $availability)
+    public function update(AvailabilityRequest $request, Availability $availability)
     {
         Gate::authorize('update', $availability);
 

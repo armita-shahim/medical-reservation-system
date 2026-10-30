@@ -5,7 +5,7 @@ namespace App\Http\Requests\Availability;
 use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreAvailabilityRequest extends FormRequest
+class AvailabilityRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -25,7 +25,7 @@ class StoreAvailabilityRequest extends FormRequest
             'end_time' => ['required', 'date_format:H:i', 'after:start_time'],
 
             'valid_from' => ['required', 'date_format:Y-m-d'],
-            'valid_until' => ['required', 'nullable', 'date_format:Y-m-d', 'after_or_equal:valid_from'],
+            'valid_until' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:valid_from'],
 
             'slot_duration_minutes' => ['required', 'integer', 'between:10,120', 'multiple_of:5']
         ];
