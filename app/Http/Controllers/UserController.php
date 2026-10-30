@@ -8,6 +8,7 @@ use App\Http\Resources\UserResource;
 use App\Http\Requests\User\UpdateUserRequest;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use App\Enums\AppointmentStatus;
 
 
 class UserController extends Controller
@@ -38,6 +39,16 @@ class UserController extends Controller
                 'message' => 'Only patients can be deleted from this endpoint'
             ], 403);
         }
+
+        $hasAppointment = $user->appointments()->where('status', AppointmentStatus::Booked)
+            ->where('start_at', '>', now())->exists();
+
+        if ($hasAppointment) {
+            return response()->json([
+                'message' => 'This doctor has upcoming appointment, can not be deleted',
+            ], 409);
+        }
+
 
         DB::beginTransaction();
 
