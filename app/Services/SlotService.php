@@ -159,6 +159,6 @@ class SlotService
                 }
             }
         }
-        return $slots->sortBy('start_at')->values()->all;
+        return $slots->sortBy('start_at')->values()->all();
     }
 }
