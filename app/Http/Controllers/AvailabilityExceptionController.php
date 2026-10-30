@@ -64,8 +64,6 @@ class AvailabilityExceptionController extends Controller
 
         $exception->update($data);
 
-        $exception->update($request->validated());
-
         return new AvailabilityExceptionResource($exception->refresh());
     }
 
