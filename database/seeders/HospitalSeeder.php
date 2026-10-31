@@ -10,12 +10,36 @@ class HospitalSeeder extends Seeder
     public function run(): void
     {
         $hospitals = [
-            ['name' => 'بیمارستان سینا', 'city' => 'تبریز', 'address' => 'خیابان آزادی'],
-            ['name' => 'بیمارستان اسدآبادی', 'city' => 'تبریز', 'address' => 'خیابان بهار'],
-            ['name' => 'بیمارستان امام رضا', 'city' => 'تبریز', 'address' => 'خیابان دانشگاه'],
-            ['name' => 'بیمارستان فطمیه', 'city' => 'شبستر', 'address' => 'بلوار بسیج'],
-            ['name' => 'بیمارستان شهید مدنی', 'city' => 'آذرشهر', 'address' => 'خیابان امام'],
-            ['name' => 'بیمارستان فارابی', 'city' => 'ملکان', 'address' => 'بلوار آنا'],
+            [
+                'name' => 'Sina Hospital',
+                'city' => 'Tabriz',
+                'address' => 'Azadi Street',
+            ],
+            [
+                'name' => 'Asadabadi Hospital',
+                'city' => 'Tabriz',
+                'address' => 'Bahar Street',
+            ],
+            [
+                'name' => 'Imam Reza Hospital',
+                'city' => 'Tabriz',
+                'address' => 'University Street',
+            ],
+            [
+                'name' => 'Fatemiyeh Hospital',
+                'city' => 'Shabestar',
+                'address' => 'Basij Boulevard',
+            ],
+            [
+                'name' => 'Shahid Madani Hospital',
+                'city' => 'Azarshahr',
+                'address' => 'Imam Street',
+            ],
+            [
+                'name' => 'Farabi Hospital',
+                'city' => 'Malekan',
+                'address' => 'Ana Boulevard',
+            ],
         ];
 
         foreach ($hospitals as $hospital) {

@@ -10,20 +10,20 @@ class SpecialtySeeder extends Seeder
     public function run(): void
     {
         $names = [
-            'قلب و عروق',
-            'ارتوپدی',
-            'چشمپزشکی',
-            'روانپزشکی',
-            'مغز و اعصاب',
-            'پوست و مو',
-            'کودکان',
-            'داخلی',
-            'گوش، حلق و بینی',
-            'دندانپزشکی',
-            'رادیولوژی',
-            'فیزیوتراپی',
-            'پزشک عمومی',
-            'مامایی'
+            'Cardiology',
+            'Orthopedics',
+            'Ophthalmology',
+            'Psychiatry',
+            'Neurology',
+            'Dermatology',
+            'Pediatrics',
+            'Internal Medicine',
+            'Otolaryngology',
+            'Dentistry',
+            'Radiology',
+            'Physiotherapy',
+            'General Practice',
+            'Midwifery',
         ];
 
         foreach ($names as $name) {
