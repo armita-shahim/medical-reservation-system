@@ -2,8 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Specialty\StoreSpecialtyRequest;
-use App\Http\Requests\Specialty\UpdateSpecialtyRequest;
+use App\Http\Requests\Specialty\SpecialtyRequest;
 use App\Http\Resources\SpecialtyResource;
 use App\Models\Specialty;
 
@@ -20,7 +19,7 @@ class SpecialtyController extends Controller
         return new SpecialtyResource($specialty);
     }
 
-    public function store(StoreSpecialtyRequest $request)
+    public function store(SpecialtyRequest $request)
     {
         $specialty = Specialty::create($request->validated());
 
@@ -29,7 +28,7 @@ class SpecialtyController extends Controller
             ->setStatusCode(201);
     }
 
-    public function update(UpdateSpecialtyRequest $request, Specialty $specialty)
+    public function update(SpecialtyRequest $request, Specialty $specialty)
     {
         $specialty->update($request->validated());
 

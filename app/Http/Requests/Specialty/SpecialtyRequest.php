@@ -5,7 +5,7 @@ namespace App\Http\Requests\Specialty;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class UpdateSpecialtyRequest extends FormRequest
+class SpecialtyRequest extends FormRequest
 {
     public function authorize(): bool
     {
