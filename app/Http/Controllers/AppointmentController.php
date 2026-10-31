@@ -12,6 +12,8 @@ use App\Services\SlotService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Http\Requests\CancelAppointmentRequest;
+use App\Http\Requests\UpdateAppointmentStatusRequest;
 
 class AppointmentController extends Controller
 {
@@ -19,14 +21,6 @@ class AppointmentController extends Controller
         StoreAppointmentRequest $request,
         SlotService $slotService
     ) {
-        $user = $request->user();
-
-        if ($user->role !== UserRole::Patient) {
-            return response()->json([
-                'message' => 'Only patients can book appointments.',
-            ], 403);
-        }
-
         $data = $request->validated();
 
         DB::beginTransaction();
@@ -110,8 +104,8 @@ class AppointmentController extends Controller
         if ($user->role === UserRole::Patient) {
             $appointments->where('patient_id', $user->id);
         } elseif ($user->role === UserRole::Doctor) {
-            $doctor = $user->doctor;
 
+            $doctor = $user->doctor;
             if ($doctor === null) {
                 return response()->json([
                     'message' => 'Doctor profile not found.',
@@ -131,28 +125,13 @@ class AppointmentController extends Controller
         );
     }
 
-    public function show(Request $request, Appointment $appointment)
+    public function show(Appointment $appointment)
     {
-        $user = $request->user();
-
-        if (!$this->canAccessAppointment($user, $appointment)) {
-            return response()->json([
-                'message' => 'You are not allowed to view this appointment.',
-            ], 403);
-        }
-
         return new AppointmentResource($appointment);
     }
 
-    public function cancel(Request $request, Appointment $appointment)
+    public function cancel(CancelAppointmentRequest $request, Appointment $appointment)
     {
-        $user = $request->user();
-
-        if (!$this->canAccessAppointment($user, $appointment)) {
-            return response()->json([
-                'message' => 'You are not allowed to cancel this appointment.',
-            ], 403);
-        }
 
         if ($appointment->status !== AppointmentStatus::Booked) {
             return response()->json([
@@ -166,16 +145,10 @@ class AppointmentController extends Controller
             ], 409);
         }
 
-        $data = $request->validate([
-            'cancel_reason' => [
-                'nullable',
-                'string',
-                'max:255',
-            ],
-        ]);
+        $data = $request->validated();
 
         $appointment->status = AppointmentStatus::Cancelled;
-        $appointment->cancelled_by_id = $user->id;
+        $appointment->cancelled_by_id = $request->user()->id;
         $appointment->cancelled_at = now();
         $appointment->cancel_reason = $data['cancel_reason'] ?? null;
 
@@ -184,35 +157,9 @@ class AppointmentController extends Controller
         return new AppointmentResource($appointment);
     }
 
-    public function updateStatus(Request $request, Appointment $appointment)
+    public function updateStatus(UpdateAppointmentStatusRequest $request, Appointment $appointment)
     {
-        $user = $request->user();
-
-        $isDoctor = false;
-
-        if ($user->role === UserRole::Doctor) {
-            $doctor = $user->doctor;
-
-            if ($doctor !== null && $appointment->doctor_id === $doctor->id) {
-                $isDoctor = true;
-            }
-        }
-
-        $isAdmin = $user->role === UserRole::Admin;
-
-        if (!$isDoctor && !$isAdmin) {
-            return response()->json([
-                'message' => 'You are not allowed to change this appointment status.',
-            ], 403);
-        }
-
-        $data = $request->validate([
-            'status' => [
-                'required',
-                'string',
-                'in:completed,no_show',
-            ],
-        ]);
+        $data = $request->validated();
 
         if ($appointment->status !== AppointmentStatus::Booked) {
             return response()->json([
@@ -230,29 +177,5 @@ class AppointmentController extends Controller
         $appointment->save();
 
         return new AppointmentResource($appointment);
-    }
-
-    private function canAccessAppointment($user, Appointment $appointment): bool
-    {
-        if ($user->role === UserRole::Admin) {
-            return true;
-        }
-
-        if (
-            $user->role === UserRole::Patient &&
-            $appointment->patient_id === $user->id
-        ) {
-            return true;
-        }
-
-        if ($user->role === UserRole::Doctor) {
-            $doctor = $user->doctor;
-
-            if ($doctor !== null && $appointment->doctor_id === $doctor->id) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }
