@@ -4,7 +4,7 @@ namespace App\Http\Requests\Hospital;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreHospitalRequest extends FormRequest
+class HospitalRequest extends FormRequest
 {
     public function authorize(): bool
     {

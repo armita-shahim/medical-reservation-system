@@ -2,8 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Hospital\StoreHospitalRequest;
-use App\Http\Requests\Hospital\UpdateHospitalRequest;
+use App\Http\Requests\Hospital\HospitalRequest;
 use App\Models\Hospital;
 use App\Http\Resources\HospitalResource;
 
@@ -22,7 +21,7 @@ class HospitalController extends Controller
         return new HospitalResource($hospital);
     }
 
-    public function store(StoreHospitalRequest $request)
+    public function store(HospitalRequest $request)
     {
         $hospital = Hospital::create($request->validated());
 
@@ -31,7 +30,7 @@ class HospitalController extends Controller
             ->setStatusCode(201);
     }
 
-    public function update(UpdateHospitalRequest $request, Hospital $hospital)
+    public function update(HospitalRequest $request, Hospital $hospital)
     {
         $hospital->update($request->validated());
 
