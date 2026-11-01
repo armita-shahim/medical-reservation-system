@@ -14,10 +14,10 @@ class AvailabilityExceptionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'start_at' => ['required', 'date_format:Y-m-d\TH:i:sP'],
+            'start_at' => ['required', 'date_format:Y-m-d H:i:s'],
             'end_at' => [
                 'required',
-                'date_format:Y-m-d\TH:i:sP',
+                'date_format:Y-m-d H:i:s',
                 'after:start_at',
             ],
             'reason' => ['nullable', 'string', 'max:255'],
