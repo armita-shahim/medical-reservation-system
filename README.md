@@ -1,58 +1,79 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Medical Appointment Booking API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A REST API for booking doctor appointments, built with **Laravel** and **PostgreSQL**.
+There is no frontend: everything is available through the API (documented in the Postman collection).
 
-## About Laravel
+## Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Patient:** list doctors, see free slots, book / list / view / cancel appointments, read notifications.
+- **Doctor:** manage own profile, define recurring working hours (RRULE) per hospital, add leaves, see own appointments, mark them `completed` / `no_show`.
+- **Admin:** manage doctors, users, specialties and hospitals, see all appointments, view system reports.
+- Notifications (database + mail), appointment reminders, and a status history for every appointment.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
-
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Setup
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+composer install
+cp .env.example .env
+php artisan key:generate
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Edit `.env`: set the `DB_*` values for a PostgreSQL database, then make sure these are set:
 
-## Contributing
+```
+QUEUE_CONNECTION=database
+MAIL_MAILER=log
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+php artisan migrate --seed
+php artisan serve
+```
 
-## Code of Conduct
+Run these in two more terminals (needed for notifications and reminders):
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+php artisan queue:work
+php artisan schedule:work
+```
 
-## Security Vulnerabilities
+- Default admin: `admin@example.com` / `adminPassword123`.
+- Timezone: the app uses `Asia/Tehran` (see `config/app.php`).
+- Use `Authorization: Bearer <token>` (except register and login).
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Formats
 
-## License
+| Type | Format | Example |
+|---|---|---|
+| Date | `Y-m-d` | `2026-11-05` |
+| Time of day | `H:i` | `09:00` |
+| Date and time | `Y-m-d H:i:s` | `2026-11-05 09:00:00` |
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Lists are paginated (15 per page). Errors are always JSON with a `message` (`401`, `403`, `404`, `409`, `422`).
+
+## Design decisions
+
+**Users and roles**
+- One `users` table with a role enum (`admin`, `doctor`, `patient`) and a separate `doctors` table for doctor data (medical council code, specialty, bio).
+- Public registration always creates a patient. Admins create doctors (user + doctor profile in one database transaction).
+- Users and doctors use **soft deletes**. Deleting a doctor also deletes the user account and revokes its tokens. A doctor or patient with upcoming booked appointments cannot be deleted (`409`). Email and medical code of deleted accounts stay reserved.
+
+**Availability and slots**
+- A doctor defines recurring weekly rules per hospital: days, interval (every N weeks), working hours, validity dates and slot duration. The API receives `days` and `interval` and builds the RRULE (`FREQ=WEEKLY;INTERVAL=n;BYDAY=...;WKST=SA`) on the server.
+- Slots are not stored. They are generated on request from now until 30 days ahead, from the rules, minus leaves and non-cancelled appointments. Past slots are skipped. A doctor can work in several hospitals (optional `hospital_id` filter).
+
+**Booking**
+- Appointments are confirmed immediately (booked); there is no approval step. Statuses: `booked`, `completed`, `cancelled`, `no_show`.
+- Booking runs in a transaction that locks the doctor row, then checks that the requested time is one of the generated free slots. If not, the API answers `409`. This prevents double booking.
+- Cancelling: the patient, the doctor of the appointment, or an admin, only while the appointment is `booked` and in the future. Doctors and admins can set `completed` or `no_show` only after the appointment has started.
+
+**Events, queue and scheduler**
+- `AppointmentBooked` / `AppointmentCancelled` events are dispatched after the appointment is saved. Queued listeners send notifications (database + mail). A cancellation notifies the other person, not the person who cancelled.
+- An observer writes a row to `appointment_status_histories` when an appointment is created and every time its status changes.
+- The scheduler runs every 15 minutes, finds booked appointments starting within 24 hours that have no reminder yet, and dispatches a `SendAppointmentReminder` job. The job sends the notification and sets `reminder_sent_at`, so a reminder is sent only once.
+
+## Database Diagram
+
+![Database Diagram](docs/images/database-diagram.png)
+
+
