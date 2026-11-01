@@ -10,7 +10,6 @@ use App\Http\Requests\Doctor\StoreDoctorRequest;
 use App\Models\User;
 use App\Enums\UserRole;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Gate;
 
 class DoctorController extends Controller
 {
@@ -68,8 +67,6 @@ class DoctorController extends Controller
 
     public function update(UpdateDoctorRequest $request, Doctor $doctor)
     {
-        Gate::authorize('update', $doctor);
-
         $doctor->update($request->validated());
 
         $doctor->load(['user', 'specialty']);
