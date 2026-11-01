@@ -19,7 +19,7 @@ class AvailabilityRequest extends FormRequest
 
             'days' => ['required', 'array', 'min:1', 'max:7'],
             'days.*' => ['required', 'string', 'distinct', Rule::in(['SA', 'SU', 'MO', 'TU', 'WE', 'TH', 'FR'])],
-            'interval' => ['sometimes', 'integer', 'min:1'],
+            'interval' => ['required', 'integer', 'min:1', 'max:4'],
 
             'start_time' => ['required', 'date_format:H:i'],
             'end_time' => ['required', 'date_format:H:i', 'after:start_time'],
