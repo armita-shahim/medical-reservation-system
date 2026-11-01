@@ -5,28 +5,19 @@ namespace App\Http\Controllers;
 use App\Models\Availability;
 use App\Http\Resources\AvailabilityResource;
 use App\Http\Requests\Availability\AvailabilityRequest;
-use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
 class AvailabilityController extends Controller
 {
     public function index()
     {
-        $doctor = Auth::user()->doctor;
+        $doctor = request()->user()->doctor;
 
         $availabilities = $doctor->availabilities()
             ->orderBy('id')
             ->paginate(15);
 
         return AvailabilityResource::collection($availabilities);
-    }
-
-    public function show(Availability $availability)
-    {
-        Gate::authorize('view', $availability);
-
-        return new AvailabilityResource($availability);
     }
 
     public function store(AvailabilityRequest $request)
@@ -51,10 +42,10 @@ class AvailabilityController extends Controller
 
     public function update(AvailabilityRequest $request, Availability $availability)
     {
-        Gate::authorize('update', $availability);
-
         $data = $request->validated();
-        $data['valid_until'] ?? null;
+        if ($request->exists('valid_until')) {
+            $data['valid_until'] = $request->input('valid_until');
+        }
 
         $start = substr($data['start_time'] ?? $availability->start_time, 0, 5);
         $end = substr($data['end_time'] ?? $availability->end_time, 0, 5);
@@ -81,8 +72,6 @@ class AvailabilityController extends Controller
 
     public function destroy(Availability $availability)
     {
-        Gate::authorize('delete', $availability);
-
         $availability->delete();
 
         return response()->noContent();
