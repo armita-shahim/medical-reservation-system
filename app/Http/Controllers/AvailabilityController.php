@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Availability;
 use App\Http\Resources\AvailabilityResource;
 use App\Http\Requests\Availability\AvailabilityRequest;
-use Illuminate\Validation\ValidationException;
 
 class AvailabilityController extends Controller
 {
@@ -45,15 +44,6 @@ class AvailabilityController extends Controller
         $data = $request->validated();
         if ($request->exists('valid_until')) {
             $data['valid_until'] = $request->input('valid_until');
-        }
-
-        $start = substr($data['start_time'] ?? $availability->start_time, 0, 5);
-        $end = substr($data['end_time'] ?? $availability->end_time, 0, 5);
-
-        if ($end <= $start) {
-            throw ValidationException::withMessages([
-                'end_time' => 'End time must be after start time.',
-            ]);
         }
 
         if (isset($data['days'])) {
