@@ -11,6 +11,7 @@ use App\Http\Controllers\AvailabilityExceptionController;
 use App\Http\Controllers\SlotController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\ReportController;
 
 Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);
@@ -74,5 +75,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/users/{user}', [UserController::class, 'show']);
         Route::patch('/users/{user}', [UserController::class, 'update']);
         Route::delete('/users/{user}', [UserController::class, 'destroy']);
+
+        Route::get('/reports/overview', [ReportController::class, 'overview']);
+        Route::get('/reports/top-doctors', [ReportController::class, 'topDoctors']);
+        Route::get('/reports/hospitals', [ReportController::class, 'hospitals']);
     });
 });
