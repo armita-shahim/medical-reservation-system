@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Enums\AppointmentStatus;
 use App\Enums\UserRole;
+use App\Events\AppointmentBooked;
+use App\Events\AppointmentCancelled;
 use App\Http\Requests\StoreAppointmentRequest;
 use App\Http\Resources\AppointmentResource;
 use App\Models\Appointment;
@@ -90,6 +92,8 @@ class AppointmentController extends Controller
             throw $e;
         }
 
+        AppointmentBooked::dispatch($appointment);
+
         return (new AppointmentResource($appointment))
             ->response()
             ->setStatusCode(201);
@@ -146,13 +150,16 @@ class AppointmentController extends Controller
         }
 
         $data = $request->validated();
+        $cancelledById = $request->user()->id;
 
         $appointment->status = AppointmentStatus::Cancelled;
-        $appointment->cancelled_by_id = $request->user()->id;
+        $appointment->cancelled_by_id = $cancelledById;
         $appointment->cancelled_at = now();
         $appointment->cancel_reason = $data['cancel_reason'] ?? null;
 
         $appointment->save();
+
+        AppointmentCancelled::dispatch($appointment, $cancelledById);
 
         return new AppointmentResource($appointment);
     }
