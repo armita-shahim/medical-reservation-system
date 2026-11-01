@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\AvailabilityException\AvailabilityExceptionRequest;
 use App\Http\Resources\AvailabilityExceptionResource;
 use App\Models\AvailabilityException;
-use Carbon\Carbon;
 
 
 class AvailabilityExceptionController extends Controller
