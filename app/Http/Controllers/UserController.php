@@ -45,7 +45,7 @@ class UserController extends Controller
 
         if ($hasAppointment) {
             return response()->json([
-                'message' => 'This doctor has upcoming appointment, can not be deleted',
+                'message' => 'This patient has upcoming appointment, can not be deleted',
             ], 409);
         }
 
