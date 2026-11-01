@@ -9,12 +9,12 @@ use RRule\RRule;
 
 class SlotService
 {
-    public function generate(Doctor $doctor, string $from, ?int $hospitalId = null): array
+    private const DAYS_AHEAD = 30;
+    public function generate(Doctor $doctor, ?int $hospitalId = null): array
     {
-        $timezone = 'Asia/Tehran';
-
-        $rangeStart = Carbon::parse($from, $timezone)->startOfDay();
-        $rangeEnd = $rangeStart->copy()->addDays(13)->endOfDay();
+        $now = now();
+        $rangeStart = $now->copy()->startOfDay();
+        $rangeEnd = $now->copy()->addDays(self::DAYS_AHEAD)->endOfDay();
 
         // Get doctor's availabilities.
         $availabilities = $doctor->availabilities()
@@ -50,14 +50,10 @@ class SlotService
 
 
         $slots = collect();
-        $now = Carbon::now($timezone);
 
         foreach ($availabilities as $availability) {
             //firstday and lastday
-            $validFrom = Carbon::parse(
-                $availability->valid_from,
-                $timezone
-            )->startOfDay();
+            $validFrom = Carbon::parse($availability->valid_from)->startOfDay();
 
             $firstDay = $rangeStart->copy();
             if ($validFrom->gt($rangeStart)) {
@@ -66,10 +62,7 @@ class SlotService
 
             $lastDay = $rangeEnd->copy();
             if ($availability->valid_until !== null) {
-                $validUntil = Carbon::parse(
-                    $availability->valid_until,
-                    $timezone
-                )->endOfDay();
+                $validUntil = Carbon::parse($availability->valid_until)->endOfDay();
 
                 if ($validUntil->lt($rangeEnd))
                     $lastDay = $validUntil->copy();
@@ -100,19 +93,13 @@ class SlotService
             );
 
             foreach ($days as $day) {
-                $date = Carbon::parse($day, $timezone)->format('Y-m-d');
+                $date = $day->format('Y-m-d');
 
-                $start = Carbon::parse(
-                    $date . ' ' . $availability->start_time,
-                    $timezone
-                );
+                $start = Carbon::parse($date . ' ' . $availability->start_time);
 
-                $end = Carbon::parse(
-                    $date . ' ' . $availability->end_time,
-                    $timezone
-                );
+                $end = Carbon::parse($date . ' ' . $availability->end_time);
 
-                $duration = (int) $availability->slot_duration_minutes;
+                $duration = $availability->slot_duration_minutes;
 
                 // Create slots.
                 while ($start->copy()->addMinutes($duration)->lte($end)) {
@@ -153,8 +140,8 @@ class SlotService
 
                     $slots->push([
                         'hospital_id' => $availability->hospital_id,
-                        'start_at' => $slotStart->toIso8601String(),
-                        'end_at' => $slotEnd->toIso8601String(),
+                        'start_at' => $slotStart->format('Y-m-d H:i:s'),
+                        'end_at' => $slotEnd->format('Y-m-d H:i:s')
                     ]);
                 }
             }

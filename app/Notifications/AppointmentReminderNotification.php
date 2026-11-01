@@ -32,8 +32,6 @@ class AppointmentReminderNotification extends Notification
             ->line('Doctor: ' . $this->appointment->doctor->user->name)
             ->line(
                 'Date: ' . $this->appointment->start_at
-                    ->copy()
-                    ->timezone('Asia/Tehran')
                     ->format('Y-m-d H:i')
             );
     }
@@ -42,10 +40,7 @@ class AppointmentReminderNotification extends Notification
     {
         return [
             'appointment_id' => $this->appointment->id,
-            'start_at' => $this->appointment->start_at
-                ->copy()
-                ->timezone('Asia/Tehran')
-                ->toIso8601String(),
+            'start_at' => $this->appointment->start_at->format('Y-m-d H:i:s'),
             'doctor_name' => $this->appointment->doctor->user->name,
             'message' => 'Your appointment is coming up.',
         ];

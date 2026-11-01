@@ -40,24 +40,17 @@ class AppointmentController extends Controller
                 ], 404);
             }
 
-            $timezone = 'Asia/Tehran';
-
-            $startAt = Carbon::parse(
-                $data['start_at'],
-                $timezone
-            )->setTimezone($timezone);
+            $startAt = Carbon::parse($data['start_at']);
 
             $slots = $slotService->generate(
                 $doctor,
-                $startAt->toDateString(),
                 (int) $data['hospital_id']
             );
 
             $selectedSlot = null;
 
             foreach ($slots as $slot) {
-                $slotStart = Carbon::parse($slot['start_at'])
-                    ->setTimezone($timezone);
+                $slotStart = Carbon::parse($slot['start_at']);
 
                 if ($slotStart->equalTo($startAt)) {
                     $selectedSlot = $slot;

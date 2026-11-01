@@ -20,7 +20,6 @@ class SlotController extends Controller
 
         $slots = $slotService->generate(
             $doctor,
-            $validated['from'],
             $hospitalId
         );
 
