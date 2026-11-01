@@ -10,6 +10,7 @@ use App\Http\Controllers\AvailabilityController;
 use App\Http\Controllers\AvailabilityExceptionController;
 use App\Http\Controllers\SlotController;
 use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\NotificationController;
 
 Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);
@@ -34,6 +35,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/appointments/{appointment}/cancel', [AppointmentController::class, 'cancel'])->can('cancel', 'appointment');
     Route::patch('/doctors/{doctor}', [DoctorController::class, 'update'])->can('update', 'doctor');
 
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::patch('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
 
     Route::middleware('role:patient')->group(function () {
         Route::post('/appointments', [AppointmentController::class, 'store']);
@@ -42,13 +45,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('role:doctor')->group(function () {
 
         Route::get('/availabilities', [AvailabilityController::class, 'index']);
-        Route::get('/availabilities/{availability}', [AvailabilityController::class, 'show']);
         Route::post('/availabilities', [AvailabilityController::class, 'store']);
         Route::put('/availabilities/{availability}', [AvailabilityController::class, 'update'])->can('update', 'availability');
         Route::delete('/availabilities/{availability}', [AvailabilityController::class, 'destroy'])->can('delete', 'availability');
 
         Route::get('/availability-exceptions', [AvailabilityExceptionController::class, 'index']);
-        Route::get('/availability-exceptions/{exception}', [AvailabilityExceptionController::class, 'show']);
         Route::post('/availability-exceptions', [AvailabilityExceptionController::class, 'store']);
         Route::delete('/availability-exceptions/{exception}', [AvailabilityExceptionController::class, 'destroy'])->can('delete', 'exception');
     });
