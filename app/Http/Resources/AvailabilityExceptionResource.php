@@ -12,8 +12,8 @@ class AvailabilityExceptionResource extends JsonResource
         return [
             'id' => $this->id,
             'doctor_id' => $this->doctor_id,
-            'start_at' => $this->start_at?->toIso8601String(),
-            'end_at' => $this->end_at?->toIso8601String(),
+            'start_at' => $this->start_at->format('Y-m-d H:i:s'),
+            'end_at' => $this->end_at->format('Y-m-d H:i:s'),
             'reason' => $this->reason,
         ];
     }
