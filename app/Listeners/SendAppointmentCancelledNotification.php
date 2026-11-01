@@ -4,8 +4,9 @@ namespace App\Listeners;
 
 use App\Events\AppointmentCancelled;
 use App\Notifications\AppointmentCancelledNotification;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class SendAppointmentCancelledNotification
+class SendAppointmentCancelledNotification implements ShouldQueue
 {
     public function handle(AppointmentCancelled $event): void
     {

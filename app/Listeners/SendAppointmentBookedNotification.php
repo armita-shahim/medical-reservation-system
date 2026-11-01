@@ -4,8 +4,9 @@ namespace App\Listeners;
 
 use App\Events\AppointmentBooked;
 use App\Notifications\AppointmentBookedNotification;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class SendAppointmentBookedNotification
+class SendAppointmentBookedNotification implements ShouldQueue
 {
     public function handle(AppointmentBooked $event): void
     {
