@@ -76,7 +76,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::patch('/users/{user}', [UserController::class, 'update']);
         Route::delete('/users/{user}', [UserController::class, 'destroy']);
 
-        Route::get('/reports/overview', [ReportController::class, 'overview']);
+        Route::get('/reports/summary', [ReportController::class, 'summary']);
         Route::get('/reports/top-doctors', [ReportController::class, 'topDoctors']);
         Route::get('/reports/hospitals', [ReportController::class, 'hospitals']);
     });
